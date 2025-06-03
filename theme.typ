@@ -3,7 +3,8 @@
 // 默认配置
 #let default-config = (
   // 字体
-  font-family: ("Times New Roman", "SimSun"),
+  serif-family: ("Times New Roman", "FandolSong"),
+  sans-family: ("FandolHei"),
   font-size: 14pt,
 
   // 页面边距
@@ -24,12 +25,32 @@
   outline-levels: (2, 3, 4),
 
   // 样式
-  primary-color: rgb(0, 0, 0),
+  primary-color: rgb(139, 0, 0),
   link-color: rgb(139, 0, 0),
+
+  // 页码配置
+  footer-show: true,
+  footer-format: "第 {page} 页",  // 可选: "第 {page} 页，共 {total} 页", "{page}", "{page} / {total}"
+  footer-alignment: center,       // 可选: left, center, right
+  footer-line: true,              // 是否显示页脚上方的分割线
 )
 
 // 全局变量
 #let global-font-size = state("global-font-size", 12pt)
+
+#let Figure(content, caption: none, size: none, kind: auto) = {
+  {
+    if size != none {
+      show figure.caption: set text(size: size)
+      figure(content, caption: caption, kind: kind)
+    } else {
+      context{
+        show figure.caption: set text(global-font-size.get())
+        figure(content, caption: caption, kind: kind)
+      }
+    }
+  }
+}
 
 // Git 历史组件
 #let _show-git-history(config: default-config) = {
@@ -68,6 +89,35 @@
   pagebreak()
 }
 
+// 页脚组件
+#let _create-footer(config: default-config) = {
+  if not config.footer-show { return none }
+  
+  let footer-content = context {
+    let current-page = counter(page).display()
+    let page-text = if "total" in config.footer-format {
+      let total-pages = locate(loc => counter(page).final(loc).first())
+      config.footer-format
+        .replace("{page}", str(current-page))
+        .replace("{total}", str(total-pages))
+    } else {
+      config.footer-format.replace("{page}", str(current-page))
+    }
+    
+    if config.footer-line {
+      [
+        #line(length: 100%, stroke: 0.5pt + black)
+        #v(-.5em)
+        #align(config.footer-alignment)[#text(size: 0.9em)[#page-text]]
+      ]
+    } else {
+      align(config.footer-alignment)[#text(size: 0.9em)[#page-text]]
+    }
+  }
+  
+  footer-content
+}
+
 // 快速文档设置
 #let setup-document(
   body,
@@ -78,10 +128,13 @@
 ) = {
   let config = default-config + config
 
-  set page(margin: config.margin)
+  set page(
+    margin: config.margin,
+    footer: none
+  )
 
   set text(
-    font: config.font-family,
+    font: config.serif-family,
     size: config.font-size
   )
 
@@ -99,7 +152,7 @@
   )
 
   show heading: it => {
-    set text(fill: config.primary-color, weight: "regular")
+    set text(fill: config.primary-color, font: config.sans-family)
     it
     v(0.3em)
   }
@@ -125,6 +178,9 @@
     _show-outline(config: config)
   }
 
+  counter(page).update(1)
+  set page(footer: _create-footer(config: config))
+
   if title != none {
     align(center)[= #title]
     v(1em)
@@ -148,19 +204,5 @@
     })
 
     body
-  }
-}
-
-#let Figure(content, caption: none, size: none, kind: auto) = {
-  {
-    if size != none {
-      show figure.caption: set text(size: size)
-      figure(content, caption: caption, kind: kind)
-    } else {
-      context{
-        show figure.caption: set text(global-font-size.get())
-        figure(content, caption: caption, kind: kind)
-      }
-    }
   }
 }
