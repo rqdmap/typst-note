@@ -4,7 +4,15 @@
 #let default-config = (
   // 字体
   font-family: ("Times New Roman", "SimSun"),
-  font-size: 12pt,
+  font-size: 14pt,
+
+  // 页面边距
+  margin: (
+    top: 2.5cm,
+    bottom: 2.5cm,
+    left: 2cm,
+    right: 2cm
+  ),
 
   // Git 历史
   git-title: "文档版本修改历史",
@@ -19,6 +27,9 @@
   primary-color: rgb(0, 0, 0),
   link-color: rgb(139, 0, 0),
 )
+
+// 全局变量
+#let global-font-size = state("global-font-size", 12pt)
 
 // Git 历史组件
 #let _show-git-history(config: default-config) = {
@@ -67,16 +78,19 @@
 ) = {
   let config = default-config + config
 
+  set page(margin: config.margin)
+
   set text(
     font: config.font-family,
     size: config.font-size
   )
 
   set par(
-    leading: 1em,     // 行距
+    leading: 1.2em,     // 行距
     spacing: 1.2em,   // 段落之间的间距
     justify: true,    // 文本两端对齐
-    first-line-indent: (amount: 1.5em, all: true), // 首行缩进
+    first-line-indent: (amount: 2em, all: true), // 首行缩进
+    linebreaks: "optimized",
   )
 
   show link: it => text(
@@ -117,6 +131,14 @@
   }
 
   set figure(supplement: "图")
+  global-font-size.update(config.font-size)
+
+  show figure: set box(
+    stroke: ( thickness: 0.5pt, paint: rgb("#3070b3"), join: "round",),
+    radius: 2pt,
+    inset: 4pt,
+    fill: rgb("#f9f9fb")
+  )
 
   {
     set heading(numbering: (..nums) => {
@@ -126,5 +148,19 @@
     })
 
     body
+  }
+}
+
+#let Figure(content, caption: none, size: none, kind: auto) = {
+  {
+    if size != none {
+      show figure.caption: set text(size: size)
+      figure(content, caption: caption, kind: kind)
+    } else {
+      context{
+        show figure.caption: set text(global-font-size.get())
+        figure(content, caption: caption, kind: kind)
+      }
+    }
   }
 }
