@@ -16,7 +16,7 @@ git_log.json:
 
 # 主要编译目标
 main: git_log.json
-	typst compile main.typ --input git_version=$(GIT_VERSION) --input git_commit=$(GIT_COMMIT) --input git_date=$(GIT_DATE)
+	typst compile main.typ
 
 # 清理目标
 clean:
