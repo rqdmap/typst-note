@@ -1,4 +1,5 @@
 #import "theme.typ": setup-document, Figure
+#import "utilities/text.typ": *
 
 #show: setup-document.with(
   title: "Typst 文本文档模板",
@@ -61,6 +62,9 @@
 一夕意原害師占能豆自，包向千什空手泉貓消請出呀「且植追每燈」。
 
 == 标题如果很多
+
+#red[123]
+
 == 标题如果很多
 == 标题如果很多
 == 标题如果很多
