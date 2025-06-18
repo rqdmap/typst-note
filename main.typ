@@ -3,6 +3,9 @@
 
 #show: setup-document.with(
   title: "Typst 文本文档模板",
+  subtitle: "合适的副标题",
+  author: "rqdmap",
+  date: auto,
   show-git-history: true,
   show-outline: true,
   config:(

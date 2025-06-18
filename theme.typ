@@ -1,5 +1,3 @@
-// 简化版主题配置
-
 // 默认配置
 #let default-config = (
   // 字体
@@ -25,7 +23,7 @@
   outline-levels: (2, 3, 4),
 
   // 样式
-  primary-color: rgb(139, 0, 0),
+  primary-color: rgb(30, 60, 180),
   link-color: rgb(139, 0, 0),
 
   // 页码配置
@@ -75,6 +73,28 @@
   )
 }
 
+
+// 标题组件 - 独立显示标题信息
+#let _show-title(title, subtitle: none, author: none, date: none, config: default-config) = {
+  align(center)[
+    #text(size: 18pt, weight: "bold", font: config.sans-family, fill: config.primary-color)[
+      #title
+    ]
+
+    #if subtitle != none [
+      #text(size: 14pt, font: config.sans-family, fill: config.primary-color.lighten(20%))[
+        #subtitle
+      ]
+    ]
+
+    #text(size: 11pt)[
+      #if author != none [#author]
+      #if author != none and date != none [ · ]
+      #if date != none [#date]
+    ]
+  ]
+}
+
 // 目录组件
 #let _show-outline(config: default-config) = {
   let targets = config.outline-levels.map(level => heading.where(level: level))
@@ -92,7 +112,7 @@
 // 页脚组件
 #let _create-footer(config: default-config) = {
   if not config.footer-show { return none }
-  
+
   let footer-content = context {
     let current-page = counter(page).display()
     let page-text = if "total" in config.footer-format {
@@ -103,7 +123,7 @@
     } else {
       config.footer-format.replace("{page}", str(current-page))
     }
-    
+
     if config.footer-line {
       [
         #line(length: 100%, stroke: 0.5pt + black)
@@ -114,7 +134,7 @@
       align(config.footer-alignment)[#text(size: 0.9em)[#page-text]]
     }
   }
-  
+
   footer-content
 }
 
@@ -122,6 +142,9 @@
 #let setup-document(
   body,
   title: none,
+  subtitle: none,
+  author: none,
+  date: none,
   show-git-history: true,
   show-outline: true,
   config: (:)
@@ -139,10 +162,10 @@
   )
 
   set par(
-    leading: 1.2em,     // 行距
-    spacing: 1.2em,   // 段落之间的间距
-    justify: true,    // 文本两端对齐
-    first-line-indent: (amount: 2em, all: true), // 首行缩进
+    leading: 1.2em,
+    spacing: 1.2em,
+    justify: true,
+    first-line-indent: (amount: 2em, all: true),
     linebreaks: "optimized",
   )
 
@@ -157,11 +180,6 @@
     v(0.3em)
   }
 
-  if show-git-history {
-    _show-git-history(config: config)
-    v(1em)
-  }
-
   show outline.entry: it => {
     if it.level == 2 {
       v(0.2em)
@@ -174,17 +192,27 @@
     }
   }
 
+  if title != none {
+    let final-date = if date == auto {
+      datetime.today().display("[year]年[month]月[day]日")
+    } else {
+      date
+    }
+
+    _show-title(title, subtitle: subtitle, author: author, date: final-date, config: config)
+  }
+
   if show-outline {
     _show-outline(config: config)
   }
 
-  counter(page).update(1)
-  set page(footer: _create-footer(config: config))
-
-  if title != none {
-    align(center)[= #title]
+  if show-git-history {
+    _show-git-history(config: config)
     v(1em)
   }
+
+  counter(page).update(1)
+  set page(footer: _create-footer(config: config))
 
   set figure(supplement: "图")
   global-font-size.update(config.font-size)
