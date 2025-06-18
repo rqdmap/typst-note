@@ -161,13 +161,20 @@
     size: config.font-size
   )
 
-  set par(
+  let par-settings = (
     leading: 1.2em,
     spacing: 1.2em,
     justify: true,
     first-line-indent: (amount: 2em, all: true),
     linebreaks: "optimized",
   )
+
+  set par(..par-settings)
+  show list: set par(..par-settings)
+  show enum: set par(..par-settings)
+
+  set list(indent: 2em, body-indent: 0.5em)
+  set enum(indent: 2em, body-indent: 0.5em)
 
   show link: it => text(
     config.link-color,
