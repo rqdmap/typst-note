@@ -82,7 +82,7 @@
     ]
 
     #if subtitle != none [
-      #text(size: 14pt, font: config.sans-family, fill: config.primary-color.lighten(20%))[
+      #text(size: 14pt, font: config.sans-family, fill: config.primary-color.lighten(0%))[
         #subtitle
       ]
     ]
